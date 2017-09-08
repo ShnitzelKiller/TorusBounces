@@ -96,6 +96,7 @@ function initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
     params = zeros(2, bounces)
     angmom = zeros(bounces)
     coses = zeros(bounces)
+    badangles = 0
     for i=1:bounces
         phi, theta = raytrace(R, r, phi, theta, dir)
         params[:, i] = [phi, theta]
@@ -103,11 +104,18 @@ function initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
         dir = normalize(dir - 2 * dot(n, dir) * n)
         angmom[i] = cross(torus(R, r, phi, theta), dir)[3]
         coses[i] = dot(n, dir)
+        if dot(n, dir) < 0
+            println("impossible angle at step $i; aborting")
+            params = params[:,1:i]
+            angmom = angmom[1:i]
+            coses = coses[1:i]
+            break
+        end
     end
     return params, angmom, coses
 end
 
-function plot_bounces(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
+function plot_bounces(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces; start=1)
     params, angmom, coses = initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
     hitpoints = zeros(3, size(params, 2) + 1)
     hitpoints[:,1] = torus(R, r, phi, theta)
@@ -116,11 +124,11 @@ function plot_bounces(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
     end
     pts = toruspoints(R, r, 64, 32)
     scatter(pts[1,:], pts[2,:], pts[3,:], m=(:cyan, stroke(0)), ms = 0.5)
-    path3d!(hitpoints[1,:], hitpoints[2,:], hitpoints[3,:], m=(stroke(0), :red), ms=0.5)
+    path3d!(hitpoints[1,start:end], hitpoints[2,start:end], hitpoints[3,start:end], m=(stroke(0), :red), ms=0.5)
 end
 
-function plot_bounces2d(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
+function plot_bounces2d(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces; start=1)
     params, angmom, coses = initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
     #params = [[phi, theta] params]
-    scatter(params[1,:], params[2, :], m=(stroke(0)), ms = 3, zcolor = coses)
+    scatter(params[1,start:end], params[2, start:end], m=(stroke(0)), ms = 3, zcolor = coses[start:end])
 end
