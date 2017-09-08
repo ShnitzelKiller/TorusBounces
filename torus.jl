@@ -1,7 +1,7 @@
 #theta inner angle, phi is the outer angle
 
 MIN_STEP = 1e-4
-TOLERANCE = 1e-10
+TOLERANCE = 1e-14
 
 "find the angles (phi, theta) of the point on the surface corresponding to the 3D point x"
 function angles(R, x)
@@ -88,7 +88,7 @@ function raytrace(R, r, phi, theta, dir)
             x = xmid
         end
     end
-    #println("ray steps: $nsteps; bisections steps: $bsteps")
+    println("ray steps: $nsteps; bisections steps: $bsteps")
     return angles(R, x0)
 end
 
