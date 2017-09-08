@@ -88,8 +88,8 @@ function raytrace(R, r, phi, theta, dir)
             x = xmid
         end
     end
-    println("ray steps: $nsteps; bisections steps: $bsteps")
-    return angles(R, x0)
+    #println("ray steps: $nsteps; bisections steps: $bsteps")
+    return angles(R, xopt)
 end
 
 function initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
