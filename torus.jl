@@ -1,7 +1,7 @@
 #theta inner angle, phi is the outer angle
 
 MIN_STEP = 1e-4
-TOLERANCE = 1e-14
+TOLERANCE = 1e-9
 
 "find the angles (phi, theta) of the point on the surface corresponding to the 3D point x"
 function angles(R, x)
@@ -130,5 +130,5 @@ end
 function plot_bounces2d(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces; start=1)
     params, angmom, coses = initial_cond(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces)
     #params = [[phi, theta] params]
-    scatter(params[1,start:end], params[2, start:end], m=(stroke(0)), ms = 3, zcolor = coses[start:end])
+    scatter(params[1,start:end], angmom[start:end], m=(stroke(0)), ms = 3, zcolor = coses[start:end], ylim=[-3,3])
 end
