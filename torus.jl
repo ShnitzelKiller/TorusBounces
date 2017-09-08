@@ -1,6 +1,7 @@
 #theta inner angle, phi is the outer angle
 
 MIN_STEP = 1e-4
+TOLERANCE = 1e-10
 
 "find the angles (phi, theta) of the point on the surface corresponding to the 3D point x"
 function angles(R, x)
@@ -44,26 +45,50 @@ function toruspoints(R, r, n, m)
 end
 
 function raytrace(R, r, phi, theta, dir)
-    x0 = torus(R, r, phi, theta) + MIN_STEP * dir
+    x0 = torus(R, r, phi, theta)
     x = x0
     #TODO: remove this test array
     #steps = x
     #dists = zeros(0)
     nsteps = 0
+    dist = distance(R, r, x)
+    dist0 = NaN
     while true
-        dist = distance(R, r, x)
-        #dists = [dists; dist]
-        if dist > 0
-            break
-        end
+
         nsteps += 1
         x0 = x
         #our distance field is NOT conservative, so divide step size by 2 for safe measure
         step = max(abs(dist)/2, MIN_STEP)
         x += step * dir
+
+        dist0 = dist
+        dist = distance(R, r, x)
+        #dists = [dists; dist]
+        if dist > 0
+            break
+        end
         #steps = [steps x]
     end
-    #println("steps taken: $nsteps")
+
+    #if nsteps == 1 println("warning: one step path!") end
+
+    xopt = nothing
+    bsteps = 0
+    while true
+        bsteps += 1
+        xmid = (x + x0) / 2
+        dist0 = distance(R, r, xmid)
+        if dist0 < TOLERANCE
+            xopt = xmid
+            break
+        end
+        if dist0 < 0
+            x0 = xmid
+        else
+            x = xmid
+        end
+    end
+    #println("ray steps: $nsteps; bisections steps: $bsteps")
     return angles(R, x0)
 end
 
