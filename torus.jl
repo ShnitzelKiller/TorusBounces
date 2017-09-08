@@ -124,7 +124,7 @@ function plot_bounces(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces; 
     end
     pts = toruspoints(R, r, 64, 32)
     scatter(pts[1,:], pts[2,:], pts[3,:], m=(:cyan, stroke(0)), ms = 0.5)
-    path3d!(hitpoints[1,start:end], hitpoints[2,start:end], hitpoints[3,start:end], m=(stroke(0), :red), ms=0.5)
+    path3d!(hitpoints[1,start:end], hitpoints[2,start:end], hitpoints[3,start:end], m=(stroke(0), :red), ms=0.5, lw=3)
 end
 
 function plot_bounces2d(R, r, dRdphi, drdphi, drdtheta, phi, theta, dir, bounces; start=1)
