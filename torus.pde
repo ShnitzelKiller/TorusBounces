@@ -6,7 +6,7 @@ import java.lang.Math.*;
 
 static final double MIN_STEP = 1e-4;
 static final double TOLERANCE = 1e-9;
-static final int bounces = 1000;
+static final int bounces = 10000;
 static final int nres = 64;
 static final int mres = 16;
 static final int scale = 40;
@@ -93,51 +93,63 @@ double dot(PVectord a, PVectord b) {
   return a.x*b.x+a.y*b.y+a.z*b.z;
 }
 double R(double phi) {
-  return 2;
+  return 2 + 0.5 * Math.cos(2 * phi);
 }
 double r(double phi, double theta) {
-  return 1 + 0.5 * Math.cos(8 * phi);
+  return 1;
 }
 double dRdphi(double phi) {
-  return 0;
+  return -Math.sin(2 * phi);
 }
 double drdphi(double phi, double theta) {
-  return -4 * Math.sin(8 * phi);
+  return 0;
 }
 double drdtheta(double phi, double theta) {
   return 0;
 }
 
 GWindow window;
+GWindow window2;
 GCustomSlider slider1;
 GCustomSlider slider2;
+GButton button;
 
 GWindow preview;
 PVectord[] pts;
+color currColor;
+
+static final double[][] tdata = new double[3][bounces];
+
+boolean clearcanvas;
+boolean enabledraw;
 
 float rot;
 
 void setup() {
+  clearcanvas = false;
+  enabledraw = false;
   rot = 0;
   noSmooth();
-  size(500,500);
+  background(255);
+  size(500,100);
   ellipseMode(CENTER);
   pts = toruspoints(nres, mres);
-  window = GWindow.getWindow(this, "Controls", 100, 50, 500, 100, JAVA2D);
-  preview = GWindow.getWindow(this, "Preview", 600, 50, 200, 200, P3D);
-  //preview.translate(preview.width/2.0, preview.height/2.0, 100);
-  //preview.stroke(0);
+  preview = GWindow.getWindow(this, "Preview", 100, 600, 200, 200, P3D);
   preview.addDrawHandler(this, "previewDraw");
+  window = GWindow.getWindow(this, "Trajectory Picker", 100, 50, 500, 500, JAVA2D);
+  window.addMouseHandler(this, "windowMouse");
   window.addDrawHandler(this, "windowDraw");
-  slider1 = new GCustomSlider(window, 50, 10, 400, 50, "grey_blue");
-  slider2 = new GCustomSlider(window, 50, 50, 400, 50, "grey_blue");
+  window2 = GWindow.getWindow(this, "Plot2", 600, 50, 500, 500, JAVA2D);
+  window2.addDrawHandler(this, "windowDraw2");
+  slider1 = new GCustomSlider(this, 50, 10, 300, 50, "grey_blue");
+  slider2 = new GCustomSlider(this, 50, 50, 300, 50, "grey_blue");
   slider1.setLimits(0, -PI/2, PI/2);
   slider1.setShowValue(true);
   slider1.setShowLimits(true);
   slider2.setLimits(0, -PI/2, PI/2);
   slider2.setShowValue(true);
   slider2.setShowLimits(true);
-  
+  button = new GButton(this, 380, 50, 100, 25, "clear");
 }
 
 PVectord[] toruspoints(int n, int m) {
@@ -151,7 +163,6 @@ PVectord[] toruspoints(int n, int m) {
 }
 
 public void previewDraw(PApplet app, GWinData data) {
-  rot += PI/512;
   app.rectMode(CENTER);
   app.pushMatrix();
   app.translate(app.width/2.0, app.height/2.0, -100);
@@ -179,7 +190,7 @@ public void previewDraw(PApplet app, GWinData data) {
     app.endShape(CLOSE);
   }
   
-  PVectord param = coord2params(mouseX, mouseY);
+  PVectord param = coord2params(window.mouseX, window.mouseY);
   PVectord pt = toruspoint(param.x, param.y);
   app.stroke(100, 100, 0);
   app.strokeWeight(5);
@@ -197,12 +208,69 @@ public void previewDraw(PApplet app, GWinData data) {
   app.popMatrix();
 }
 
+public void windowMouse(PApplet app, GWinData data, MouseEvent event) {
+  if (event.getButton() == LEFT && event.getAction() == MouseEvent.CLICK) {
+    PVectord params0 = coord2params(event.getX(), event.getY());
+    double phi0 = params0.x;
+    double theta0 = params0.y;
+    
+    PVectord dir = initDir(phi0, theta0);
+    initial_cond(tdata, phi0, theta0, dir, bounces);
+    
+    currColor = color(random(255), random(255), random(255));
+    enabledraw = true;
+    app.stroke(currColor);
+    for (int i=0; i<bounces; i++) {
+      double phi = tdata[0][i];
+      double theta = tdata[1][i];
+      double posX = (phi/(2*Math.PI) + 0.5) * app.width;
+      double posY = (theta/(2*Math.PI) + 0.5) * app.height;
+      
+      app.point((float)posX, (float)posY);
+      //println();
+      //println(params[i].x);
+      //println(params[i].y);
+    }
+  }
+}
+
 public void windowDraw(PApplet app, GWinData data) {
-  app.background(255);
+  if (clearcanvas) {
+    app.background(200);
+  }
+}
+
+public void windowDraw2(PApplet app, GWinData data) {
+  if (clearcanvas) {
+    app.background(200);
+    clearcanvas = false;
+  }
+  if (enabledraw) {
+    app.stroke(currColor);
+    for (int i=0; i<bounces; i++) {
+      double phi = tdata[0][i];
+      double momZ = tdata[2][i];
+      double posX = (phi/(2*Math.PI) + 0.5) * app.width;
+      double posY = (momZ/(6) + 0.5) * app.height;
+      
+      app.point((float)posX, (float)posY);
+      //println();
+      //println(params[i].x);
+      //println(params[i].y);
+    }
+    enabledraw = false;
+  }
+}
+
+
+public void handleButtonEvents(GButton button, GEvent event) {
+  if (this.button == button) {
+    clearcanvas = true;
+  }
 }
 
 void draw() {
-  
+  background(255);
 }
 
 PVectord coord2params(double x, double y) {
@@ -231,26 +299,7 @@ PVectord initDir(double phi, double theta) {
 }
 
 void mousePressed() {
-  PVectord params0 = coord2params(mouseX, mouseY);
-  double phi0 = params0.x;
-  double theta0 = params0.y;
   
-  PVectord dir = initDir(phi0, theta0);
-  PVectord[] params = initial_cond(phi0, theta0, dir, bounces);
-  
-  noStroke();
-  fill(random(255), random(255), random(255));
-  for (int i=0; i<bounces; i++) {
-    double phi = params[i].x;
-    double theta = params[i].y;
-    double posX = (phi/(2*Math.PI) + 0.5) * width;
-    double posY = (theta/(2*Math.PI) + 0.5) * height;
-    
-    ellipse((float)posX, (float)posY, 3, 3);
-    //println();
-    //println(params[i].x);
-    //println(params[i].y);
-  }
 }
 
 PVectord angles(PVectord x) {
@@ -330,14 +379,17 @@ PVectord raytrace(double phi, double theta, PVectord dir) {
   return angles(xopt);
 }
 
-PVectord[] initial_cond(double phi, double theta, PVectord dir, int bounces) {
-  PVectord[] params = new PVectord[bounces];
+void initial_cond(double[][] params, double phi, double theta, PVectord dir, int bounces) {
   for (int i=0; i<bounces; i++) {
     PVectord param = raytrace(phi, theta, dir);
     phi = param.x;
     theta = param.y;
-    params[i] = param;
+    params[0][i] = phi;
+    params[1][i] = theta;
     PVectord n = normal(R(phi), r(phi, theta), dRdphi(phi), drdphi(phi, theta), drdtheta(phi, theta), phi, theta);
+    PVectord x = toruspoint(phi, theta);
+    PVectord angmom = cross(x, dir);
+    params[2][i] = angmom.z;
     //println("n: " + n.toString());
     double comp = dot(n, dir);
     n.mul(-2 * comp);
@@ -346,6 +398,4 @@ PVectord[] initial_cond(double phi, double theta, PVectord dir, int bounces) {
     //println("dir after reflection: " + dir.toString());
     //println();
   }
-  
-  return params;
 }
