@@ -1,7 +1,4 @@
 import g4p_controls.*;
-
-import interfascia.*;
-
 import java.lang.Math.*;
 
 static final double MIN_STEP = 1e-4;
@@ -10,6 +7,7 @@ static final int bounces = 10000;
 static final int nres = 64;
 static final int mres = 16;
 static final int scale = 40;
+static final int background_brightness = 100;
 
 
 class PVectord {
@@ -110,9 +108,17 @@ double drdtheta(double phi, double theta) {
 
 GWindow window;
 GWindow window2;
-GCustomSlider slider1;
-GCustomSlider slider2;
+GSlider slider1;
+GSlider slider2;
 GButton button;
+GLabel label1;
+GLabel label2;
+GSlider sliderstart;
+GSlider sliderend;
+GLabel labelstart;
+GLabel labelend;
+GCheckbox checkbox;
+GLabel labelcheck;
 
 GWindow preview;
 PVectord[] pts;
@@ -120,36 +126,56 @@ color currColor;
 
 static final double[][] tdata = new double[3][bounces];
 
-boolean clearcanvas;
+boolean clearcanvas1;
+boolean clearcanvas2;
 boolean enabledraw;
+boolean partialdraw;
 
 float rot;
+float alt;
 
 void setup() {
-  clearcanvas = false;
+  clearcanvas1 = true;
+  clearcanvas2 = true;
   enabledraw = false;
+  partialdraw = false;
   rot = 0;
+  alt = PI/4;
   noSmooth();
-  background(255);
-  size(500,100);
-  ellipseMode(CENTER);
+  size(500,200);
+  colorMode(HSB, 100);
   pts = toruspoints(nres, mres);
   preview = GWindow.getWindow(this, "Preview", 100, 600, 200, 200, P3D);
   preview.addDrawHandler(this, "previewDraw");
+  preview.addMouseHandler(this, "previewMouse");
   window = GWindow.getWindow(this, "Trajectory Picker", 100, 50, 500, 500, JAVA2D);
   window.addMouseHandler(this, "windowMouse");
   window.addDrawHandler(this, "windowDraw");
   window2 = GWindow.getWindow(this, "Plot2", 600, 50, 500, 500, JAVA2D);
   window2.addDrawHandler(this, "windowDraw2");
-  slider1 = new GCustomSlider(this, 50, 10, 300, 50, "grey_blue");
-  slider2 = new GCustomSlider(this, 50, 50, 300, 50, "grey_blue");
+  slider1 = new GSlider(this, 50, 10, 300, 50, 10);
+  slider2 = new GSlider(this, 50, 50, 300, 50, 10);
+  sliderstart = new GSlider(this, 50, 90, 300, 50, 10);
+  sliderend = new GSlider(this, 50, 130, 300, 50, 10);
+  label1 = new GLabel(this, 10, 20, 50, 20, "phi");
+  label2 = new GLabel(this, 10, 60, 50, 20, "theta");
+  label2 = new GLabel(this, 10, 100, 50, 20, "start");
+  label2 = new GLabel(this, 10, 140, 50, 20, "end");
   slider1.setLimits(0, -PI/2, PI/2);
   slider1.setShowValue(true);
   slider1.setShowLimits(true);
   slider2.setLimits(0, -PI/2, PI/2);
   slider2.setShowValue(true);
   slider2.setShowLimits(true);
-  button = new GButton(this, 380, 50, 100, 25, "clear");
+  sliderstart.setLimits(0, 0, bounces);
+  sliderstart.setShowValue(true);
+  sliderstart.setShowLimits(true);
+  sliderend.setLimits(bounces, 0, bounces);
+  sliderend.setShowValue(true);
+  sliderend.setShowLimits(true);
+  button = new GButton(this, 380, 50, 100, 25, "clear canvas");
+  checkbox = new GCheckbox(this, 440, 120, 50, 50);
+  labelcheck = new GLabel(this, 400, 135, 50, 20, "render");
 }
 
 PVectord[] toruspoints(int n, int m) {
@@ -162,14 +188,31 @@ PVectord[] toruspoints(int n, int m) {
   return pts;
 }
 
+float dragPosX;
+float dragPosY;
+float lastRot;
+float lastAlt;
+
+
+public void previewMouse(PApplet app, GWinData data, MouseEvent event) {
+  if (event.getAction() == MouseEvent.PRESS) {
+    dragPosX = event.getX();
+    dragPosY = event.getY();
+    lastRot = rot;
+    lastAlt = alt;
+  } else if (event.getAction() == MouseEvent.DRAG) {
+    rot = lastRot + (event.getX() - dragPosX) / 100f;
+    alt = lastAlt + (event.getY() - dragPosY) / 100f;
+  }
+}
+
 public void previewDraw(PApplet app, GWinData data) {
-  app.rectMode(CENTER);
   app.pushMatrix();
   app.translate(app.width/2.0, app.height/2.0, -100);
-  app.rotateX(PI/4);
+  app.rotateX(alt);
   app.rotateZ(rot);
   app.background(255);
-  app.stroke(0, 0, 0, 100);
+  app.stroke(0, 0, 0, 50);
   app.noFill();
   app.strokeWeight(1);
   for (int i=0; i<nres; i++) {
@@ -204,7 +247,18 @@ public void previewDraw(PApplet app, GWinData data) {
   pt.add(dir);
   app.vertex((float)pt.x * scale, (float)pt.y * scale, (float)pt.z * scale);
   app.endShape();
-  
+  app.strokeWeight(1);
+  app.stroke(0, 100, 0);
+  app.beginShape();
+  if (partialdraw) {
+    for (int i=sliderstart.getValueI(); i<sliderend.getValueI(); i++) {
+      double phi = tdata[0][i];
+      double theta = tdata[1][i];
+      PVectord hit = toruspoint(phi, theta);
+      app.vertex((float)hit.x * scale, (float)hit.y * scale, (float)hit.z * scale);
+    }
+  }
+  app.endShape();
   app.popMatrix();
 }
 
@@ -217,37 +271,53 @@ public void windowMouse(PApplet app, GWinData data, MouseEvent event) {
     PVectord dir = initDir(phi0, theta0);
     initial_cond(tdata, phi0, theta0, dir, bounces);
     
-    currColor = color(random(255), random(255), random(255));
+    currColor = color(random(100), 100, 100);
     enabledraw = true;
-    app.stroke(currColor);
-    for (int i=0; i<bounces; i++) {
-      double phi = tdata[0][i];
-      double theta = tdata[1][i];
-      double posX = (phi/(2*Math.PI) + 0.5) * app.width;
-      double posY = (theta/(2*Math.PI) + 0.5) * app.height;
-      
-      app.point((float)posX, (float)posY);
-      //println();
-      //println(params[i].x);
-      //println(params[i].y);
-    }
+    drawhelper1(app, 0, bounces);
   }
 }
 
 public void windowDraw(PApplet app, GWinData data) {
-  if (clearcanvas) {
-    app.background(200);
+  if (clearcanvas1) {
+    app.background(background_brightness);
+    clearcanvas1 = false;
+  } else if (partialdraw) {
+    app.background(background_brightness);
+    drawhelper1(app, sliderstart.getValueI(), sliderend.getValueI());
   }
 }
 
 public void windowDraw2(PApplet app, GWinData data) {
-  if (clearcanvas) {
-    app.background(200);
-    clearcanvas = false;
+  if (clearcanvas2) {
+    app.background(background_brightness);
+    clearcanvas2 = false;
+  } else if (enabledraw) {
+    drawhelper2(app, 0, bounces);
+    enabledraw = false;
+  } else if (partialdraw) {
+    app.background(background_brightness);
+    drawhelper2(app, sliderstart.getValueI(), sliderend.getValueI());
   }
-  if (enabledraw) {
-    app.stroke(currColor);
-    for (int i=0; i<bounces; i++) {
+}
+
+private void drawhelper1(PApplet app, int start, int end) {
+  app.stroke(currColor);
+  for (int i=start; i<end; i++) {
+    double phi = tdata[0][i];
+    double theta = tdata[1][i];
+    double posX = (phi/(2*Math.PI) + 0.5) * app.width;
+    double posY = (theta/(2*Math.PI) + 0.5) * app.height;
+    
+    app.point((float)posX, (float)posY);
+    //println();
+    //println(params[i].x);
+    //println(params[i].y);
+  }
+}
+
+private void drawhelper2(PApplet app, int start, int end) {
+  app.stroke(currColor);
+    for (int i=start; i<end; i++) {
       double phi = tdata[0][i];
       double momZ = tdata[2][i];
       double posX = (phi/(2*Math.PI) + 0.5) * app.width;
@@ -258,19 +328,29 @@ public void windowDraw2(PApplet app, GWinData data) {
       //println(params[i].x);
       //println(params[i].y);
     }
-    enabledraw = false;
+}
+
+public void handleToggleControlEvents(GToggleControl checkbox, GEvent event) {
+  if (checkbox == this.checkbox) {
+    if (checkbox.isSelected()) {
+      clearcanvas1 = true;
+      clearcanvas2 = true;
+      partialdraw = true;
+    } else {
+      partialdraw = false;
+    }
   }
 }
 
-
 public void handleButtonEvents(GButton button, GEvent event) {
   if (this.button == button) {
-    clearcanvas = true;
+    clearcanvas1 = true;
+    clearcanvas2 = true;
   }
 }
 
 void draw() {
-  background(255);
+  background(0, 0, 100);
 }
 
 PVectord coord2params(double x, double y) {
