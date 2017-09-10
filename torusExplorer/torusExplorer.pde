@@ -5,11 +5,10 @@ static final double TOLERANCE = 1e-9;
 static final int BOUNCES = 10000;
 
 static final int nres = 64;
-static final int mres = 16;
+static final int mres = 32;
 static final int scale = 40;
 static final int background_brightness = 0;
 
-PVectord[] pts;
 color currColor;
 float rot;
 float alt;
@@ -20,17 +19,22 @@ float lastAlt;
 boolean isDragging;
 int lastmouseX;
 int lastmouseY;
+double a;
+double b;
+double c;
+
 
 static final double[][] tdata = new double[3][BOUNCES];
-
+static final double[][] pts = new double[3][nres * mres];
 
 public void setup(){
   size(1240, 500, JAVA2D);
+  noSmooth();
   background(background_brightness);
   createGUI();
   customGUI();
   // Place your setup code here
-  pts = toruspoints(nres, mres);
+  toruspoints(pts, nres, mres);
 }
 
 public void draw(){
@@ -63,8 +67,36 @@ public void mouseClicked() {
   }
 }
 
+float lastXcoord;
+float lastYcoord;
+
 public void mouseMoved() {
   if (mouseX > 240 && mouseX <= 740) {
+    
+    PVectord params = coord2params(mouseX, mouseY);
+    double phi = params.x;
+    double theta = params.y;
+    
+    //must un-bounce the direction backwards to be consistent with how ang momentom
+    //is measured in subsequent bounces (pre-bounce)
+    PVectord dir = initDir(phi, theta);
+    PVectord n = normal(R(phi), r(phi, theta), dRdphi(phi), drdphi(phi, theta), drdtheta(phi, theta), phi, theta);
+    PVectord x = toruspoint(phi, theta);
+    double comp = dot(n, dir);
+    n.mul(-2 * comp);
+    dir.add(n);
+    dir.normalize();
+    
+    PVectord angmom = cross(x, dir);
+
+    float posY2 = (float)(angmom.z/(6) + 0.5) * height;
+    stroke(0);
+    point(lastXcoord + 500, lastYcoord);
+    stroke(255);
+    point(mouseX + 500, posY2);
+    lastXcoord = mouseX;
+    lastYcoord = posY2;
+    
     lastmouseX = mouseX;
     lastmouseY = mouseY;
   }
@@ -75,6 +107,9 @@ public void mouseMoved() {
 public void customGUI(){
   sliderstart.setLimits(0, 0, BOUNCES);
   sliderend.setLimits(BOUNCES, 0, BOUNCES);
+  a = slidera.getValueF();
+  b = sliderb.getValueF();
+  c = sliderc.getValueF();
 }
 
 private void drawhelper(int start, int end) {
@@ -162,14 +197,15 @@ PVectord toruspoint(double phi, double theta) {
                       rphitheta * Math.sin(theta));
 }
 
-PVectord[] toruspoints(int n, int m) {
-  PVectord[] pts = new PVectord[n * m];
+void toruspoints(double[][] out, int n, int m) {
   for (int i=0; i<n; i++) {
     for (int j=0; j<m; j++) {
-      pts[i * m + j] = toruspoint(2*Math.PI/n*i, 2*Math.PI/m*j);
+      PVectord pt = toruspoint(2*Math.PI/n*i, 2*Math.PI/m*j);
+      pts[0][i * m + j] = pt.x;
+      pts[1][i * m + j] = pt.y;
+      pts[2][i * m + j] = pt.z;
     }
   }
-  return pts;
 }
 
 PVectord raytrace(double phi, double theta, PVectord dir) {
@@ -309,4 +345,8 @@ PVectord cross(PVectord a, PVectord b) {
 
 double dot(PVectord a, PVectord b) {
   return a.x*b.x+a.y*b.y+a.z*b.z;
+}
+
+double sqr(double a) {
+  return a * a;
 }

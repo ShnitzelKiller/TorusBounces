@@ -32,7 +32,26 @@ public void sliderend_change(GSlider source, GEvent event) { //_CODE_:sliderend:
 
 public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox:935369:
   clearbutton.setEnabled(!source.isSelected());
+  slidera.setEnabled(!source.isSelected());
+  sliderb.setEnabled(!source.isSelected());
+  sliderc.setEnabled(!source.isSelected());
 } //_CODE_:checkbox:935369:
+
+public void slidera_change(GSlider source, GEvent event) { //_CODE_:slidera:417594:
+  a = source.getValueF();
+  toruspoints(pts, nres, mres);
+  println(a);
+} //_CODE_:slidera:417594:
+
+public void sliderb_change(GSlider source, GEvent event) { //_CODE_:sliderb:912805:
+  b = source.getValueF();
+  toruspoints(pts, nres, mres);
+} //_CODE_:sliderb:912805:
+
+public void sliderc_change(GSlider source, GEvent event) { //_CODE_:sliderc:393942:
+  c = source.getValueF();
+  toruspoints(pts, nres, mres);
+} //_CODE_:sliderc:393942:
 
 synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:preview:226203:
   appc.pushMatrix();
@@ -46,8 +65,10 @@ synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:pr
   for (int i=0; i<nres; i++) {
     appc.beginShape();
     for (int j=0; j<mres; j++) {
-      PVectord pt = pts[i * mres + j];
-      appc.vertex((float)pt.x * scale, (float)pt.y * scale, (float)pt.z * scale);
+      float ptx = (float)pts[0][i * mres + j] * scale;
+      float pty = (float)pts[1][i * mres + j] * scale;
+      float ptz = (float)pts[2][i * mres + j] * scale;
+      appc.vertex(ptx, pty, ptz);
     }
     appc.endShape(CLOSE);
   }
@@ -55,8 +76,10 @@ synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:pr
   for (int i=0; i<mres; i++) {
     appc.beginShape();
     for (int j=0; j<nres; j++) {
-      PVectord pt = pts[j * mres + i];
-      appc.vertex((float)pt.x * scale, (float)pt.y * scale, (float)pt.z * scale);
+      float ptx = (float)pts[0][j * mres + i] * scale;
+      float pty = (float)pts[1][j * mres + i] * scale;
+      float ptz = (float)pts[2][j * mres + i] * scale;
+      appc.vertex(ptx, pty, ptz);
     }
     appc.endShape(CLOSE);
   }
@@ -101,8 +124,8 @@ synchronized public void preview_mouse(PApplet appc, GWinData data, MouseEvent m
   } else if (mevent.getAction() == MouseEvent.RELEASE) {
     isDragging = false;
   } else if (isDragging) {
-    rot = lastRot + (mevent.getX() - dragPosX) / 100f;
-    alt = lastAlt + (mevent.getY() - dragPosY) / 100f;
+    rot = lastRot - (mevent.getX() - dragPosX) / 100f;
+    alt = lastAlt - (mevent.getY() - dragPosY) / 100f;
   }
 } //_CODE_:preview:836716:
 
@@ -135,7 +158,7 @@ public void createGUI(){
   sliderphi.addEventHandler(this, "sliderphi_change");
   label1 = new GLabel(this, 0, 20, 60, 40);
   label1.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  label1.setText("Direction");
+  label1.setText("Launch direction");
   label1.setOpaque(false);
   clearbutton = new GButton(this, 60, 60, 160, 160);
   clearbutton.setText("clear canvas");
@@ -162,11 +185,44 @@ public void createGUI(){
   label3.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label3.setText("end");
   label3.setOpaque(false);
-  checkbox = new GCheckbox(this, 60, 240, 180, 20);
+  checkbox = new GCheckbox(this, 60, 230, 140, 20);
   checkbox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   checkbox.setText("render selected range");
   checkbox.setOpaque(false);
   checkbox.addEventHandler(this, "checkbox_clicked");
+  slidera = new GSlider(this, 60, 380, 160, 40, 10.0);
+  slidera.setShowValue(true);
+  slidera.setShowLimits(true);
+  slidera.setLimits(0.5, 0.0, 1.0);
+  slidera.setNumberFormat(G4P.DECIMAL, 2);
+  slidera.setOpaque(false);
+  slidera.addEventHandler(this, "slidera_change");
+  sliderb = new GSlider(this, 60, 420, 160, 40, 10.0);
+  sliderb.setShowValue(true);
+  sliderb.setShowLimits(true);
+  sliderb.setLimits(0.5, 0.0, 1.0);
+  sliderb.setNumberFormat(G4P.DECIMAL, 2);
+  sliderb.setOpaque(false);
+  sliderb.addEventHandler(this, "sliderb_change");
+  sliderc = new GSlider(this, 60, 460, 160, 40, 10.0);
+  sliderc.setShowValue(true);
+  sliderc.setShowLimits(true);
+  sliderc.setLimits(0.5, 0.0, 1.0);
+  sliderc.setNumberFormat(G4P.DECIMAL, 2);
+  sliderc.setOpaque(false);
+  sliderc.addEventHandler(this, "sliderc_change");
+  label6 = new GLabel(this, 0, 380, 60, 40);
+  label6.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label6.setText("a");
+  label6.setOpaque(false);
+  label7 = new GLabel(this, 0, 420, 60, 40);
+  label7.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label7.setText("b");
+  label7.setOpaque(false);
+  label8 = new GLabel(this, 0, 460, 60, 40);
+  label8.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label8.setText("c");
+  label8.setOpaque(false);
   panel1.addControl(slidertheta);
   panel1.addControl(sliderphi);
   panel1.addControl(label1);
@@ -176,6 +232,12 @@ public void createGUI(){
   panel1.addControl(label2);
   panel1.addControl(label3);
   panel1.addControl(checkbox);
+  panel1.addControl(slidera);
+  panel1.addControl(sliderb);
+  panel1.addControl(sliderc);
+  panel1.addControl(label6);
+  panel1.addControl(label7);
+  panel1.addControl(label8);
   label4 = new GLabel(this, 240, 0, 80, 20);
   label4.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label4.setText("Phase plot");
@@ -205,6 +267,12 @@ GSlider sliderend;
 GLabel label2; 
 GLabel label3; 
 GCheckbox checkbox; 
+GSlider slidera; 
+GSlider sliderb; 
+GSlider sliderc; 
+GLabel label6; 
+GLabel label7; 
+GLabel label8; 
 GLabel label4; 
 GLabel label5; 
 GWindow preview;
