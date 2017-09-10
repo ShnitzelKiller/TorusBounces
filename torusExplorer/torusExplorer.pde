@@ -9,6 +9,25 @@ static final int mres = 16;
 static final int scale = 40;
 static final int background_brightness = 0;
 
+/* EDIT THESE FUNCTIONS TO MODIFY PARAMETRIZATION (Derivatives must be correct) */
+
+double R(double phi) {
+  return 2;
+}
+double r(double phi, double theta) {
+  return 1 + 0.5 * Math.sin(phi);
+}
+double dRdphi(double phi) {
+  return 0;
+}
+double drdphi(double phi, double theta) {
+  return 0.5 * Math.cos(phi);
+}
+double drdtheta(double phi, double theta) {
+  return 0;
+}
+
+/* END EDIT */
 
 class PVectord {
   double x;
@@ -90,26 +109,6 @@ PVectord cross(PVectord a, PVectord b) {
 double dot(PVectord a, PVectord b) {
   return a.x*b.x+a.y*b.y+a.z*b.z;
 }
-
-/* EDIT THESE FUNCTIONS TO MODIFY PARAMETRIZATION (Derivatives must be correct) */
-
-double R(double phi) {
-  return 2;
-}
-double r(double phi, double theta) {
-  return 1 + 0.5 * Math.sin(phi);
-}
-double dRdphi(double phi) {
-  return 0;
-}
-double drdphi(double phi, double theta) {
-  return 0.5 * Math.cos(phi);
-}
-double drdtheta(double phi, double theta) {
-  return 0;
-}
-
-/* END EDIT */
 
 GWindow window;
 GWindow window2;

@@ -27,7 +27,7 @@ The first two sliders in the settings window allow you to change the initial lau
 
 When this mode is active, only the active trajectory will be shown in the scatter plots, and you can isolate any interesting behavior you see by adjusting the start and end sliders.
 
-To modify the torus, edit the `R(phi)`, `r(phi, theta)`, `dRdphi(phi)`, `drdphi(phi, theta)`, and `drdtheta(phi, theta)` functions. Note that the latter three must be correct partial derivatives of `R` and `r`.
+To modify the torus, edit the `R(phi)`, `r(phi, theta)`, `dRdphi(phi)`, `drdphi(phi, theta)`, and `drdtheta(phi, theta)` functions in the applet code. Note that the latter three must be correct partial derivatives of `R` and `r`.
 
 ### Dependencies:
 - The Julia code depends on the Plots.jl package.
