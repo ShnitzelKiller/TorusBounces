@@ -90,6 +90,9 @@ PVectord cross(PVectord a, PVectord b) {
 double dot(PVectord a, PVectord b) {
   return a.x*b.x+a.y*b.y+a.z*b.z;
 }
+
+/* EDIT THESE FUNCTIONS TO MODIFY PARAMETRIZATION (Derivatives must be correct) */
+
 double R(double phi) {
   return 2;
 }
@@ -105,6 +108,8 @@ double drdphi(double phi, double theta) {
 double drdtheta(double phi, double theta) {
   return 0;
 }
+
+/* END EDIT */
 
 GWindow window;
 GWindow window2;
@@ -196,15 +201,18 @@ float dragPosX;
 float dragPosY;
 float lastRot;
 float lastAlt;
-
+boolean isDragging;
 
 public void previewMouse(PApplet app, GWinData data, MouseEvent event) {
   if (event.getAction() == MouseEvent.PRESS) {
+    isDragging = true;
     dragPosX = event.getX();
     dragPosY = event.getY();
     lastRot = rot;
     lastAlt = alt;
-  } else if (event.getAction() == MouseEvent.DRAG) {
+  } else if (event.getAction() == MouseEvent.RELEASE) {
+    isDragging = false;
+  } else if (isDragging) {
     rot = lastRot + (event.getX() - dragPosX) / 100f;
     alt = lastAlt + (event.getY() - dragPosY) / 100f;
   }
