@@ -7,7 +7,7 @@ static final int bounces = 10000;
 static final int nres = 64;
 static final int mres = 16;
 static final int scale = 40;
-static final int background_brightness = 100;
+static final int background_brightness = 0;
 
 
 class PVectord {
@@ -91,16 +91,16 @@ double dot(PVectord a, PVectord b) {
   return a.x*b.x+a.y*b.y+a.z*b.z;
 }
 double R(double phi) {
-  return 2 + 0.5 * Math.cos(2 * phi);
+  return 2;
 }
 double r(double phi, double theta) {
-  return 1;
+  return 1 + 0.5 * Math.sin(phi);
 }
 double dRdphi(double phi) {
-  return -Math.sin(2 * phi);
+  return 0;
 }
 double drdphi(double phi, double theta) {
-  return 0;
+  return 0.5 * Math.cos(phi);
 }
 double drdtheta(double phi, double theta) {
   return 0;
@@ -119,6 +119,8 @@ GLabel labelstart;
 GLabel labelend;
 GCheckbox checkbox;
 GLabel labelcheck;
+GLabel labelphi;
+GLabel labeltheta;
 
 GWindow preview;
 PVectord[] pts;
@@ -176,6 +178,8 @@ void setup() {
   button = new GButton(this, 380, 50, 100, 25, "clear canvas");
   checkbox = new GCheckbox(this, 440, 120, 50, 50);
   labelcheck = new GLabel(this, 400, 135, 50, 20, "render");
+  labelphi = new GLabel(this, 50, 180, 200, 20, "phi: ");
+  labeltheta = new GLabel(this, 250, 180, 200, 20, "theta: ");
 }
 
 PVectord[] toruspoints(int n, int m) {
@@ -267,6 +271,9 @@ public void windowMouse(PApplet app, GWinData data, MouseEvent event) {
     PVectord params0 = coord2params(event.getX(), event.getY());
     double phi0 = params0.x;
     double theta0 = params0.y;
+    
+    labelphi.setText("phi: " + phi0);
+    labeltheta.setText("theta: " + theta0);
     
     PVectord dir = initDir(phi0, theta0);
     initial_cond(tdata, phi0, theta0, dir, bounces);
