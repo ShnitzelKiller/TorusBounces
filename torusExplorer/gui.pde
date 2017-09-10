@@ -162,7 +162,7 @@ public void createGUI(){
   label3.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label3.setText("end");
   label3.setOpaque(false);
-  checkbox = new GCheckbox(this, 60, 240, 140, 20);
+  checkbox = new GCheckbox(this, 60, 240, 180, 20);
   checkbox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   checkbox.setText("render selected range");
   checkbox.setOpaque(false);
