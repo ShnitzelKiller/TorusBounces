@@ -2,6 +2,17 @@
 
 This is a tool for simulating the trajectory of a particle inside of a deformed torus. The Processing applet allows for interactive exploration of the results for different initial conditions.
 
+### Conventions
+
+The parametrization is given by
+
+![parametrization](images/math.gif)
+
+In our coordinate system, phi is the azimuthal angle, and positive changes in phi correspond to counter-clockwise motion viewed from the +Z direction (starting in the +X direction).
+
+Theta is the inner angle, traversing the cross-section of the torus. Theta is zero on the outside of the torus and pi on the inside of the torus.
+
+
 ### Usage
 
 ![some scatter plots layered over each other](images/applet_screenshot.jpg)
