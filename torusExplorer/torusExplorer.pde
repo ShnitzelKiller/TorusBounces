@@ -27,6 +27,9 @@ double c;
 static final double[][] tdata = new double[3][BOUNCES];
 static final double[][] pts = new double[3][nres * mres];
 
+PImage img1;
+PImage img2;
+
 public void setup(){
   size(1240, 500, JAVA2D);
   noSmooth();
@@ -35,12 +38,15 @@ public void setup(){
   customGUI();
   // Place your setup code here
   toruspoints(pts, nres, mres);
+  img1 = createImage(500, 500, RGB);
+  img2 = createImage(500, 500, RGB);
+  clearImages();
 }
 
 public void draw(){
   if (checkbox.isSelected()) {
     background(background_brightness);
-    drawhelper(sliderstart.getValueI(), sliderend.getValueI());
+    drawhelper(sliderstart.getValueI(), sliderend.getValueI(), true);
   }
   fill(100);
   noStroke();
@@ -63,15 +69,17 @@ public void mouseClicked() {
     colorMode(HSB);
     currColor = color(random(255), 255, 255);
     colorMode(RGB);
-    drawhelper(0, BOUNCES);
+    drawhelper(0, BOUNCES, false);
+    image(img1, 240, 0);
+    image(img2, 740, 0);
   }
 }
 
-float lastXcoord;
-float lastYcoord;
-
 public void mouseMoved() {
   if (mouseX > 240 && mouseX <= 740) {
+    //redraw existing canvas
+    
+    copy(img2, 1, 20, 499, 480, 741, 20, 499, 480);
     
     PVectord params = coord2params(mouseX, mouseY);
     double phi = params.x;
@@ -90,12 +98,8 @@ public void mouseMoved() {
     PVectord angmom = cross(x, dir);
 
     float posY2 = (float)(angmom.z/(6) + 0.5) * height;
-    stroke(0);
-    point(lastXcoord + 500, lastYcoord);
     stroke(255);
     point(mouseX + 500, posY2);
-    lastXcoord = mouseX;
-    lastYcoord = posY2;
     
     lastmouseX = mouseX;
     lastmouseY = mouseY;
@@ -112,8 +116,7 @@ public void customGUI(){
   c = sliderc.getValueF();
 }
 
-private void drawhelper(int start, int end) {
-  stroke(currColor);
+private void drawhelper(int start, int end, boolean direct) {
   for (int i=start; i<end; i++) {
     double phi = tdata[0][i];
     double theta = tdata[1][i];
@@ -121,13 +124,28 @@ private void drawhelper(int start, int end) {
 
     PVectord pos = params2coord(phi, theta);
     
-    float posY2 = (float)(momZ/(6) + 0.5) * height;
+    int posY2 = (int) ((momZ/(6) + 0.5) * height);
     
-    point((float)pos.x, (float)pos.y);
-    point((float)pos.x + 500, posY2);
+    if (direct) {
+      stroke(currColor);
+      point((int)pos.x, (int)pos.y);
+      point((int)pos.x + 500, posY2);
+    } else {
+      img1.set((int)pos.x - 240, (int)pos.y, currColor);
+      img2.set((int)pos.x - 240, posY2, currColor);
+    }
     //println();
     //println(params[i].x);
     //println(params[i].y);
+  }
+}
+
+private void clearImages() {
+  for (int i=0; i<img1.width; i++) {
+    for (int j=0; j<img1.height; j++) {
+      img1.set(i, j, background_brightness);
+      img2.set(i, j, background_brightness);
+    }
   }
 }
 
