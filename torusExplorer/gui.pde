@@ -48,7 +48,6 @@ public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox
 public void slidera_change(GSlider source, GEvent event) { //_CODE_:slidera:417594:
   a = source.getValueF();
   toruspoints(pts, nres, mres);
-  println(a);
 } //_CODE_:slidera:417594:
 
 public void sliderb_change(GSlider source, GEvent event) { //_CODE_:sliderb:912805:

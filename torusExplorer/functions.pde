@@ -3,10 +3,10 @@
  */
 
 double R(double phi) {
-  return 2;
+  return c * 4;
 }
 double r(double phi, double theta) {
-  return 1 + a * Math.sin(phi);
+  return b * 2 + a * Math.sin(phi);
 }
 double dRdphi(double phi) {
   return 0;
