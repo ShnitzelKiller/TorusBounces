@@ -184,6 +184,7 @@ public void createGUI(){
   sliderstart.setShowValue(true);
   sliderstart.setShowLimits(true);
   sliderstart.setLimits(0, 0, 100);
+  sliderstart.setEasing(10.0);
   sliderstart.setNumberFormat(G4P.INTEGER, 0);
   sliderstart.setOpaque(false);
   sliderstart.addEventHandler(this, "sliderstart_change");
@@ -191,6 +192,7 @@ public void createGUI(){
   sliderend.setShowValue(true);
   sliderend.setShowLimits(true);
   sliderend.setLimits(100, 0, 100);
+  sliderend.setEasing(10.0);
   sliderend.setNumberFormat(G4P.INTEGER, 0);
   sliderend.setOpaque(false);
   sliderend.addEventHandler(this, "sliderend_change");
