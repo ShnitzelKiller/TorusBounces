@@ -26,11 +26,11 @@ public void clearbutton_click(GButton source, GEvent event) { //_CODE_:clearbutt
 } //_CODE_:clearbutton:560376:
 
 public void sliderstart_change(GSlider source, GEvent event) { //_CODE_:sliderstart:384026:
-  updateall();
+  needsRedraw = true;
 } //_CODE_:sliderstart:384026:
 
 public void sliderend_change(GSlider source, GEvent event) { //_CODE_:sliderend:276107:
-  updateall();
+  needsRedraw = true;
 } //_CODE_:sliderend:276107:
 
 public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox:935369:
@@ -42,7 +42,7 @@ public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox
   if (!source.isSelected()) {
     recopy();
   }
-  updateall();
+  needsRedraw = true;
 } //_CODE_:checkbox:935369:
 
 public void slidera_change(GSlider source, GEvent event) { //_CODE_:slidera:417594:
@@ -111,10 +111,15 @@ synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:pr
     appc.strokeWeight(1);
     appc.stroke(0, 100, 0);
     appc.beginShape();
-    for (int i=sliderstart.getValueI(); i<sliderend.getValueI(); i++) {
+    int start = sliderstart.getValueI();
+    int end = sliderend.getValueI();
+    
+    for (int i=start; i<end; i++) {
       double phi = tdata[0][i];
       double theta = tdata[1][i];
       PVectord hit = toruspoint(phi, theta);
+      color col = lerphue(((float)i - start)/(end - start));
+      appc.stroke(col);
       appc.vertex((float)hit.x * scale, (float)hit.y * scale, (float)hit.z * scale);
     }
     appc.endShape();
@@ -146,10 +151,10 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  panel1 = new GPanel(this, 0, 0, 240, 500, "Initialization");
+  panel1 = new GPanel(this, 0, 0, 240, 500, "Settings");
   panel1.setCollapsible(false);
   panel1.setDraggable(false);
-  panel1.setText("Initialization");
+  panel1.setText("Settings");
   panel1.setOpaque(true);
   slidertheta = new GSlider(this, 60, 60, 160, 40, 10.0);
   slidertheta.setShowValue(true);
@@ -243,6 +248,10 @@ public void createGUI(){
   altlabel = new GLabel(this, 60, 120, 160, 20);
   altlabel.setText("last alt: ");
   altlabel.setOpaque(false);
+  label9 = new GLabel(this, 60, 340, 160, 40);
+  label9.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label9.setText("Parameters");
+  label9.setOpaque(false);
   panel1.addControl(slidertheta);
   panel1.addControl(sliderphi);
   panel1.addControl(label1);
@@ -262,6 +271,7 @@ public void createGUI(){
   panel1.addControl(thetalabel);
   panel1.addControl(azilabel);
   panel1.addControl(altlabel);
+  panel1.addControl(label9);
   label4 = new GLabel(this, 240, 0, 80, 20);
   label4.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label4.setText("Phase plot");
@@ -301,6 +311,7 @@ GLabel philabel;
 GLabel thetalabel; 
 GLabel azilabel; 
 GLabel altlabel; 
+GLabel label9; 
 GLabel label4; 
 GLabel label5; 
 GWindow preview;

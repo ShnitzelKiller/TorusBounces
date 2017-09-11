@@ -1,13 +1,16 @@
 import g4p_controls.*;
+import java.awt.Color;
 
-static final double MIN_STEP = 1e-4;
-static final double TOLERANCE = 1e-9;
-static final int BOUNCES = 10000;
+final double MIN_STEP = 1e-4;
+final double TOLERANCE = 1e-9;
+final int BOUNCES = 10000;
 
-static final int nres = 64;
-static final int mres = 32;
-static final int scale = 40;
-static final int background_brightness = 0;
+final int nres = 64;
+final int mres = 32;
+final int scale = 40;
+final int background_brightness = 0;
+final color color1 = color(255, 0, 0);
+final color color2 = color(0, 0, 255);
 
 color currColor;
 float rot;
@@ -28,8 +31,8 @@ double b;
 double c;
 
 
-static final double[][] tdata = new double[3][BOUNCES];
-static final double[][] pts = new double[3][nres * mres];
+final double[][] tdata = new double[3][BOUNCES];
+final double[][] pts = new double[3][nres * mres];
 
 PImage img1;
 PImage img2;
@@ -155,6 +158,10 @@ public void customGUI(){
   c = sliderc.getValueF();
 }
 
+private int lerphue(float s) {
+  return Color.HSBtoRGB(s * 0.66, 1, 1);
+}
+
 private void drawhelper(int start, int end, boolean direct) {
   for (int i=start; i<end; i++) {
     double phi = tdata[0][i];
@@ -164,14 +171,14 @@ private void drawhelper(int start, int end, boolean direct) {
     PVectord pos = params2coord(phi, theta);
     
     int posY2 = (int) ((momZ/(6) + 0.5) * height);
-    
+    color pixcolor = direct ? lerphue(((float)i - start)/(end - start)) : currColor;
     if (direct) {
-      stroke(currColor);
+      stroke(pixcolor);
       point((int)pos.x, (int)pos.y);
       point((int)pos.x + 500, posY2);
     } else {
-      img1.set((int)pos.x - 240, (int)pos.y, currColor);
-      img2.set((int)pos.x - 240, posY2, currColor);
+      img1.set((int)pos.x - 240, (int)pos.y, pixcolor);
+      img2.set((int)pos.x - 240, posY2, pixcolor);
     }
     //println();
     //println(params[i].x);
