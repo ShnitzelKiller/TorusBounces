@@ -55,12 +55,19 @@ public void draw(){
   line(740, 0, 740, height);
 }
 
+float truncate(double x) {
+  return round((float)x * 10000) / 10000f;
+}
+
 public void mouseClicked() {
   if (mouseX > 240 && mouseX <= 740) {
     PVectord params0 = coord2params(mouseX, mouseY);
     double phi0 = params0.x;
     double theta0 = params0.y;
-    
+    philabel.setText("last phi: " + truncate(phi0));
+    thetalabel.setText("last theta: " + truncate(theta0));
+    azilabel.setText("last azi: " + truncate(sliderphi.getValueF()));
+    altlabel.setText("last alt: " + truncate(slidertheta.getValueF()));
     //labelphi.setText("phi: " + phi0);
     //labeltheta.setText("theta: " + theta0);
     
