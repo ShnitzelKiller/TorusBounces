@@ -22,14 +22,15 @@ public void sliderphi_change(GSlider source, GEvent event) { //_CODE_:sliderphi:
 
 public void clearbutton_click(GButton source, GEvent event) { //_CODE_:clearbutton:560376:
   clearImages();
-  image(img1, 240, 0);
-  image(img2, 740, 0);
+  recopy();
 } //_CODE_:clearbutton:560376:
 
 public void sliderstart_change(GSlider source, GEvent event) { //_CODE_:sliderstart:384026:
+  updateall();
 } //_CODE_:sliderstart:384026:
 
 public void sliderend_change(GSlider source, GEvent event) { //_CODE_:sliderend:276107:
+  updateall();
 } //_CODE_:sliderend:276107:
 
 public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox:935369:
@@ -39,9 +40,9 @@ public void checkbox_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox
   sliderc.setEnabled(!source.isSelected());
   
   if (!source.isSelected()) {
-    image(img1, 240, 0);
-    image(img2, 740, 0);
+    recopy();
   }
+  updateall();
 } //_CODE_:checkbox:935369:
 
 public void slidera_change(GSlider source, GEvent event) { //_CODE_:slidera:417594:

@@ -17,8 +17,12 @@ float dragPosY;
 float lastRot;
 float lastAlt;
 boolean isDragging;
+boolean needsRedraw;
 int lastmouseX;
 int lastmouseY;
+//positions in the right window
+int lastmouseX2;
+int lastmouseY2;
 double a;
 double b;
 double c;
@@ -44,15 +48,46 @@ public void setup(){
 }
 
 public void draw(){
-  if (checkbox.isSelected()) {
-    background(background_brightness);
-    drawhelper(sliderstart.getValueI(), sliderend.getValueI(), true);
+  if (needsRedraw) {
+    updateall();
+    needsRedraw = false;
   }
-  fill(100);
+}
+
+private void recopy() {
+  image(img1, 240, 0);
+  image(img2, 740, 0);
+}
+
+//draw the range of points currently specified
+private void drawpartial() {
+  background(background_brightness);
+  drawhelper(sliderstart.getValueI(), sliderend.getValueI(), true);
+}
+
+//draw the image buffers into the viewport, or draw the point range currently selected
+private void updateall() {
+  if (checkbox.isSelected()) {
+    drawpartial();
+  } else {
+    recopy();
+  }
+  drawoverlay();
+}
+
+private void drawoverlay() {
   noStroke();
+  fill(100);
   rect(0, 0, width, 20);
   stroke(100);
   line(740, 0, 740, height);
+  stroke(255);
+  beginShape(LINES);
+  vertex(lastmouseX2 - 5, lastmouseY2);
+  vertex(lastmouseX2 + 5, lastmouseY2);
+  vertex(lastmouseX2 , lastmouseY2 - 5);
+  vertex(lastmouseX2 , lastmouseY2 + 5);
+  endShape();
 }
 
 float truncate(double x) {
@@ -77,17 +112,15 @@ public void mouseClicked() {
     currColor = color(random(255), 255, 255);
     colorMode(RGB);
     drawhelper(0, BOUNCES, false);
-    image(img1, 240, 0);
-    image(img2, 740, 0);
+    updateall();
   }
 }
 
 public void mouseMoved() {
   if (mouseX > 240 && mouseX <= 740) {
-    //redraw existing canvas
-    if (!checkbox.isSelected()) {
-      copy(img2, 1, 20, 499, 480, 741, 20, 499, 480);
-    }
+    
+      //redraw existing canvas
+    needsRedraw = true;
     PVectord params = coord2params(mouseX, mouseY);
     double phi = params.x;
     double theta = params.y;
@@ -104,9 +137,8 @@ public void mouseMoved() {
     
     PVectord angmom = cross(x, dir);
 
-    float posY2 = (float)(angmom.z/(6) + 0.5) * height;
-    stroke(255);
-    point(mouseX + 500, posY2);
+    lastmouseX2 = mouseX + 500;
+    lastmouseY2 = (int) ((angmom.z/(6) + 0.5) * height);
     
     lastmouseX = mouseX;
     lastmouseY = mouseY;
