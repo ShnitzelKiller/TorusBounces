@@ -2,8 +2,9 @@ import g4p_controls.*;
 import java.awt.Color;
 
 final double MIN_STEP = 1e-4;
-final double TOLERANCE = 1e-9;
+final double TOLERANCE = 1e-14;
 final int BOUNCES = 10000;
+final int MAX_BISECTIONS = 20;
 
 final int nres = 64;
 final int mres = 32;
@@ -295,12 +296,13 @@ PVectord raytrace(double phi, double theta, PVectord dir) {
   }
   
   PVectord xopt = new PVectord(0, 0);
-  while (true) {
+  for (int i=0; i<MAX_BISECTIONS; i++) {
     xopt.set(x);
     xopt.add(x0);
     xopt.mul(0.5);
     dist0 = distance(xopt);
     if (dist0 < TOLERANCE) {
+      println(i + " bisections");
       break;
     }
     if (dist0 < 0) {
