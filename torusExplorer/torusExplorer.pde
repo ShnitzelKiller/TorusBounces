@@ -15,10 +15,12 @@ final color color2 = color(0, 0, 255);
 color currColor;
 float rot;
 float alt;
+float zoom;
 float dragPosX;
 float dragPosY;
 float lastRot;
 float lastAlt;
+float lastZoom;
 boolean isDragging;
 boolean needsRedraw;
 int lastmouseX;
@@ -44,6 +46,7 @@ public void setup(){
   createGUI();
   customGUI();
   // Place your setup code here
+  zoom = 100;
   toruspoints(pts, nres, mres);
   img1 = createImage(500, 500, RGB);
   img2 = createImage(500, 500, RGB);

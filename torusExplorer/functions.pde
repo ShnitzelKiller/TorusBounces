@@ -3,19 +3,19 @@
  */
 
 double R(double phi) {
-  return c * 4;
+  return 2;
 }
 double r(double phi, double theta) {
-  return b * 2 + a * Math.sin(phi);
+  return b/(a*a) / (1 - a * Math.cos(theta)) * (1 + c * Math.sin(phi));
 }
 double dRdphi(double phi) {
   return 0;
 }
 double drdphi(double phi, double theta) {
-  return a * Math.cos(phi);
+  return b/(a*a) / (1 - a * Math.cos(theta)) * c * Math.cos(phi);
 }
 double drdtheta(double phi, double theta) {
-  return 0;
+  return -b/a * Math.sin(theta) / sqr(1-a*Math.cos(theta)) * (1 + c * Math.sin(phi));
 }
 
 /* END EDIT */

@@ -62,7 +62,7 @@ public void sliderc_change(GSlider source, GEvent event) { //_CODE_:sliderc:3939
 
 synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:preview:226203:
   appc.pushMatrix();
-  appc.translate(appc.width/2.0, appc.height/2.0, -100);
+  appc.translate(appc.width/2.0, appc.height/2.0, -zoom);
   appc.rotateX(alt);
   appc.rotateZ(rot);
   appc.background(255);
@@ -133,11 +133,16 @@ synchronized public void preview_mouse(PApplet appc, GWinData data, MouseEvent m
     dragPosY = mevent.getY();
     lastRot = rot;
     lastAlt = alt;
+    lastZoom = zoom;
   } else if (mevent.getAction() == MouseEvent.RELEASE) {
     isDragging = false;
   } else if (isDragging) {
-    rot = lastRot - (mevent.getX() - dragPosX) / 100f;
-    alt = lastAlt - (mevent.getY() - dragPosY) / 100f;
+    if (mevent.getButton() == LEFT) {
+      rot = lastRot - (mevent.getX() - dragPosX) / 100f;
+      alt = lastAlt - (mevent.getY() - dragPosY) / 100f;
+    } else if (mevent.getButton() == RIGHT) {
+      zoom = lastZoom + (mevent.getY() - dragPosY);
+    }
   }
 } //_CODE_:preview:836716:
 
