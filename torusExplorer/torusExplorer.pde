@@ -85,9 +85,9 @@ public void mouseClicked() {
 public void mouseMoved() {
   if (mouseX > 240 && mouseX <= 740) {
     //redraw existing canvas
-    
-    copy(img2, 1, 20, 499, 480, 741, 20, 499, 480);
-    
+    if (!checkbox.isSelected()) {
+      copy(img2, 1, 20, 499, 480, 741, 20, 499, 480);
+    }
     PVectord params = coord2params(mouseX, mouseY);
     double phi = params.x;
     double theta = params.y;
