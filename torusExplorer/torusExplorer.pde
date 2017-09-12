@@ -302,7 +302,7 @@ PVectord raytrace(double phi, double theta, PVectord dir) {
     xopt.mul(0.5);
     dist0 = distance(xopt);
     if (dist0 < TOLERANCE) {
-      println(i + " bisections");
+      //println(i + " bisections");
       break;
     }
     if (dist0 < 0) {
