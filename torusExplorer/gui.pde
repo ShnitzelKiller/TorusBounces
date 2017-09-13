@@ -226,8 +226,10 @@ public void createGUI(){
   sliderc = new GSlider(this, 60, 460, 160, 40, 10.0);
   sliderc.setShowValue(true);
   sliderc.setShowLimits(true);
-  sliderc.setLimits(0.5, 0.0, 1.0);
-  sliderc.setNumberFormat(G4P.DECIMAL, 2);
+  sliderc.setLimits(0, 0, 9);
+  sliderc.setNbrTicks(10);
+  sliderc.setStickToTicks(true);
+  sliderc.setNumberFormat(G4P.INTEGER, 0);
   sliderc.setOpaque(false);
   sliderc.addEventHandler(this, "sliderc_change");
   label6 = new GLabel(this, 0, 380, 60, 40);
@@ -288,7 +290,7 @@ public void createGUI(){
   label5.setText("Phase plot 2");
   label5.setLocalColorScheme(GCScheme.SCHEME_8);
   label5.setOpaque(false);
-  preview = GWindow.getWindow(this, "Preview", 50, 50, 200, 200, P3D);
+  preview = GWindow.getWindow(this, "Preview", 50, 50, 300, 300, P3D);
   preview.noLoop();
   preview.addDrawHandler(this, "preview_draw");
   preview.addMouseHandler(this, "preview_mouse");

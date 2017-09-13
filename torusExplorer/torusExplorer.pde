@@ -10,8 +10,6 @@ final int nres = 64;
 final int mres = 32;
 final int scale = 40;
 final int background_brightness = 0;
-final color color1 = color(255, 0, 0);
-final color color2 = color(0, 0, 255);
 
 color currColor;
 float rot;
