@@ -133,7 +133,7 @@ public void mouseMoved() {
     //must un-bounce the direction backwards to be consistent with how ang momentom
     //is measured in subsequent bounces (pre-bounce)
     PVectord dir = initDir(phi, theta);
-    PVectord n = normal(R(phi), r(phi, theta), dRdphi(phi), drdphi(phi, theta), drdtheta(phi, theta), phi, theta);
+    PVectord n = normal(phi, theta);
     PVectord x = toruspoint(phi, theta);
     double comp = dot(n, dir);
     n.mul(-2 * comp);
@@ -206,7 +206,7 @@ PVectord params2coord(double phi, double theta) {
 }
 
 PVectord initDir(double phi, double theta) {
-  PVectord dir = normal(R(phi), r(phi, theta), dRdphi(phi), drdphi(phi, theta), drdtheta(phi, theta), phi, theta);
+  PVectord dir = normal(phi, theta);
   double phidir = Math.atan2(dir.y, dir.x);
   dir.rotateZ(-phidir);
   double thetadir = Math.atan2(dir.x, dir.z);
@@ -229,18 +229,18 @@ PVectord angles(PVectord x) {
   return new PVectord(phi, theta);
 }
 
-PVectord normal(double R, double r, double dRdphi, double drdphi, double drdtheta, double phi, double theta) {
-  double fac1 = -r * Math.sin(theta) + drdtheta * Math.cos(theta);
+PVectord normal(double phi, double theta) {
+  double fac1 = -r(phi, theta) * Math.sin(theta) + drdtheta(phi, theta) * Math.cos(theta);
   PVectord dtheta = new PVectord(
         fac1 * Math.cos(phi),
         fac1 * Math.sin(phi),
-        r * Math.cos(theta) + drdtheta * Math.sin(theta));
-  double fac2 = dRdphi + drdphi * Math.cos(theta);
-  double fac3 = R + r * Math.cos(theta);
+        r(phi, theta) * Math.cos(theta) + drdtheta(phi, theta) * Math.sin(theta));
+  double fac2 = dRdphi(phi) + drdphi(phi, theta) * Math.cos(theta);
+  double fac3 = R(phi) + r(phi, theta) * Math.cos(theta);
   PVectord dphi = new PVectord(
         fac2 * Math.cos(phi) - fac3 * Math.sin(phi),
         fac2 * Math.sin(phi) + fac3 * Math.cos(phi),
-        drdphi * Math.sin(theta));
+        drdphi(phi, theta) * Math.sin(theta));
   PVectord n = cross(dtheta, dphi);
   n.normalize();
   return n;
@@ -319,7 +319,7 @@ void initial_cond(double[][] params, double phi, double theta, PVectord dir, int
     theta = param.y;
     params[0][i] = phi;
     params[1][i] = theta;
-    PVectord n = normal(R(phi), r(phi, theta), dRdphi(phi), drdphi(phi, theta), drdtheta(phi, theta), phi, theta);
+    PVectord n = normal(phi, theta);
     PVectord x = toruspoint(phi, theta);
     PVectord angmom = cross(x, dir);
     params[2][i] = angmom.z;
