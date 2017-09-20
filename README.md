@@ -4,7 +4,7 @@ This is a tool for simulating the trajectory of a particle inside of a deformed 
 
 ### Installation
 
-The applet (in the torusExplorer directory) runs in Processing 3. Install Processing 3, load torusExplorer.pde, and run the sketch.
+The applet (in the torusExplorer directory) runs in Processing 3. Install Processing 3, load torusExplorer.pde, and then run the sketch.
 
 ### Conventions
 
@@ -31,7 +31,7 @@ The first two sliders in the settings window allow you to change the initial lau
 
 When this mode is active, only the active trajectory will be shown in the scatter plots, and you can isolate any interesting behavior you see by adjusting the start and end sliders.
 
-To modify the torus, edit the `R(phi)`, `r(phi, theta)`, `dRdphi(phi)`, `drdphi(phi, theta)`, and `drdtheta(phi, theta)` functions in the file `functions.pde`. Note that the latter three must be correct partial derivatives of `R` and `r`.
+To modify the torus, edit the `R(phi)`, `r(phi, theta)`, `dRdphi(phi)`, `drdphi(phi, theta)`, and `drdtheta(phi, theta)` functions in the file `functions.pde`. Note that the latter three must be correct partial derivatives of `R` and `r`. There are also some modifiable parameters (a, b, and c) that can be edited using sliders at runtime.
 
 ### Dependencies:
 - The Julia code depends on the Plots.jl package.
