@@ -2,6 +2,10 @@
 
 This is a tool for simulating the trajectory of a particle inside of a deformed torus. The Processing applet allows for interactive exploration of the results for different initial conditions.
 
+### Installation
+
+The applet (in the torusExplorer directory) runs in Processing 3. Install Processing 3, load torusExplorer.pde, and run the sketch.
+
 ### Conventions
 
 The parametrization is given by
