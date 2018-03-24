@@ -30,6 +30,7 @@ int lastmouseY2;
 double a;
 double b;
 double c;
+PrintWriter outputwriter;
 
 
 final double[][] tdata = new double[3][BOUNCES];

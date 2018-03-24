@@ -60,6 +60,15 @@ public void sliderc_change(GSlider source, GEvent event) { //_CODE_:sliderc:3939
   toruspoints(pts, nres, mres);
 } //_CODE_:sliderc:393942:
 
+public void savebuttonevent(GButton source, GEvent event) { //_CODE_:savebutton:397309:
+  String filename = round(random(100000)) + ".txt";
+  outputwriter = createWriter(filename);
+  for (int i=0; i<BOUNCES; i++) {
+    outputwriter.println(tdata[0][i] + " " + tdata[1][i] + " " + tdata[2][i]);
+  }
+  println("saved " + filename);
+} //_CODE_:savebutton:397309:
+
 synchronized public void preview_draw(PApplet appc, GWinData data) { //_CODE_:preview:226203:
   appc.pushMatrix();
   appc.translate(appc.width/2.0, appc.height/2.0, -zoom);
@@ -177,7 +186,7 @@ public void createGUI(){
   label1.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label1.setText("Launch direction");
   label1.setOpaque(false);
-  clearbutton = new GButton(this, 60, 140, 160, 80);
+  clearbutton = new GButton(this, 60, 140, 160, 37);
   clearbutton.setText("clear canvas");
   clearbutton.addEventHandler(this, "clearbutton_click");
   sliderstart = new GSlider(this, 60, 260, 160, 40, 10.0);
@@ -260,6 +269,9 @@ public void createGUI(){
   label9.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label9.setText("Parameters");
   label9.setOpaque(false);
+  savebutton = new GButton(this, 60, 178, 161, 41);
+  savebutton.setText("Save trajectory");
+  savebutton.addEventHandler(this, "savebuttonevent");
   panel1.addControl(slidertheta);
   panel1.addControl(sliderphi);
   panel1.addControl(label1);
@@ -280,6 +292,7 @@ public void createGUI(){
   panel1.addControl(azilabel);
   panel1.addControl(altlabel);
   panel1.addControl(label9);
+  panel1.addControl(savebutton);
   label4 = new GLabel(this, 240, 0, 80, 20);
   label4.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label4.setText("Phase plot");
@@ -320,6 +333,7 @@ GLabel thetalabel;
 GLabel azilabel; 
 GLabel altlabel; 
 GLabel label9; 
+GButton savebutton; 
 GLabel label4; 
 GLabel label5; 
 GWindow preview;
