@@ -63,8 +63,9 @@ public void sliderc_change(GSlider source, GEvent event) { //_CODE_:sliderc:3939
 public void savebuttonevent(GButton source, GEvent event) { //_CODE_:savebutton:397309:
   String filename = round(random(100000)) + ".txt";
   outputwriter = createWriter(filename);
+  outputwriter.println("phi,theta,angmom");
   for (int i=0; i<BOUNCES; i++) {
-    outputwriter.println(tdata[0][i] + " " + tdata[1][i] + " " + tdata[2][i]);
+    outputwriter.println(tdata[0][i] + "," + tdata[1][i] + "," + tdata[2][i]);
   }
   println("saved " + filename);
 } //_CODE_:savebutton:397309:
